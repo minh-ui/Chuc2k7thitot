@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Love Wall Effect</title>
+    <style>
+        /* CSS để canvas chiếm toàn bộ màn hình và loại bỏ lề */
+        body {
+            margin: 0;
+            overflow: hidden;
+            background-color: black;
+        }
+        canvas {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <!-- Đây là nơi hiệu ứng sẽ được vẽ -->
+    <canvas id="loveWallCanvas"></canvas>
+
+    <script>
+        // Lấy canvas và context để vẽ
+        const canvas = document.getElementById('loveWallCanvas');
+        const ctx = canvas.getContext('2d');
+
+        // Đặt kích thước canvas bằng kích thước cửa sổ
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        // --- CÁC HẰNG SỐ CẤU HÌNH (Tương tự code Java) ---
+        const PARTICLE_SPAWN_INTERVAL = 0.05; // Giây
+        const MIN_VELOCITY_Y_DOWN = 50;
+        const MAX_VELOCITY_Y_DOWN_OFFSET = 50;
+        const MAX_VELOCITY_X_OFFSET = 50;
+        const MIN_FONT_SIZE = 20;
+        const MAX_FONT_SIZE_OFFSET = 10;
+        const MIN_HEART_SIZE = 25;
+        const MAX_HEART_SIZE_OFFSET = 15;
+        const MIN_LIFESPAN = 10.0;
+        const MAX_LIFESPAN_OFFSET = 10.0;
+        
+        // --- TEXT GENERATOR (Tương tự TextGenerator.java) ---
+        class TextGenerator {
+            constructor() {
+                this.messages = [
+                    "cảm ơn thầy VNA và team Mapstudy",
+                    "chúc các cậu đỗ",
+                    "hỗ trợ tụi em",
+                    "cảm ơn và tạm biệt",
+                    "NV1", "đã", "chưa chia tay", "VNA", "Mapstudy", "❤"
+                ];
+            }
+            getRandomText() {
+                return this.messages[Math.floor(Math.random() * this.messages.length)];
+            }
+        }
+
+        // --- PARTICLE (Tương tự AbstractParticle.java) ---
+        class Particle {
+            constructor(x, y, velocityX, velocityY, lifeSpan) {
+                this.x = x;
+                this.y = y;
+                this.velocityX = velocityX;
+                this.velocityY = velocityY;
+                this.lifeSpan = lifeSpan;
+                this.age = 0;
+                this.opacity = 1.0;
+                this.alive = true;
+            }
+
+            update(deltaTime) {
+                if (!this.alive) return;
+
+                this.x += this.velocityX * deltaTime;
+                this.y += this.velocityY * deltaTime;
+                this.age += deltaTime;
+
+                if (this.age >= this.lifeSpan) {
+                    this.alive = false;
+                } else {
+                    this.opacity = 1.0 - (this.age / this.lifeSpan);
+                }
+            }
+            
+            // Hàm render sẽ được định nghĩa ở các lớp con
+            render(ctx) {}
+        }
+
+        // --- TEXT PARTICLE (Tương tự TextParticle.java) ---
+        class TextParticle extends Particle {
+            constructor(text, x, y, velocityX, velocityY, font, color, lifeSpan) {
+                super(x, y, velocityX, velocityY, lifeSpan);
+                this.text = text;
+                this.font = font;
+                this.color = color;
+            }
+
+            render(ctx) {
+                if (!this.alive) return;
+                ctx.font = this.font;
+                ctx.fillStyle = `rgba(${this.color.r}, ${this.color.g}, ${this.color.b}, ${this.opacity})`;
+                ctx.fillText(this.text, this.x, this.y);
+            }
+        }
+        
+        // --- HEART PARTICLE (Tương tự HeartParticle.java) ---
+        class HeartParticle extends TextParticle {
+            // Kế thừa từ TextParticle vì tim cũng là một ký tự văn bản
+            constructor(x, y, velocityX, velocityY, font, color, lifeSpan) {
+                 super("❤", x, y, velocityX, velocityY, font, color, lifeSpan);
+            }
+        }
+
+        // --- PARTICLE FACTORY (Tương tự ParticleFactory.java) ---
+        class ParticleFactory {
+            constructor(textGenerator) {
+                this.textGenerator = textGenerator;
+            }
+            
+            createRandomTextParticle(canvasWidth, canvasHeight) {
+                const text = this.textGenerator.getRandomText();
+                const x = Math.random() * canvasWidth;
+                const y = -20; // Bắt đầu từ bên trên màn hình một chút
+                const velocityX = (Math.random() - 0.5) * MAX_VELOCITY_X_OFFSET;
+                const velocityY = MIN_VELOCITY_Y_DOWN + Math.random() * MAX_VELOCITY_Y_DOWN_OFFSET;
+                const fontSize = MIN_FONT_SIZE + Math.random() * MAX_FONT_SIZE_OFFSET;
+                const font = `bold ${fontSize}px Arial`;
+                const color = { r: Math.floor(Math.random() * 256), g: Math.floor(Math.random() * 256), b: Math.floor(Math.random() * 256) };
+                const lifeSpan = MIN_LIFESPAN + Math.random() * MAX_LIFESPAN_OFFSET;
+                
+                return new TextParticle(text, x, y, velocityX, velocityY, font, color, lifeSpan);
+            }
+            
+            createRandomHeartParticle(canvasWidth, canvasHeight) {
+                const x = Math.random() * canvasWidth;
+                const y = -20;
+                const velocityX = (Math.random() - 0.5) * MAX_VELOCITY_X_OFFSET * 0.6;
+                const velocityY = (MIN_VELOCITY_Y_DOWN * 0.6) + Math.random() * (MAX_VELOCITY_Y_DOWN_OFFSET * 0.6);
+                const fontSize = MIN_HEART_SIZE + Math.random() * MAX_HEART_SIZE_OFFSET;
+                const font = `bold ${fontSize}px Arial`;
+                const color = { r: Math.floor(Math.random() * 256), g: Math.floor(Math.random() * 256), b: Math.floor(Math.random() * 256) };
+                const lifeSpan = MIN_LIFESPAN + Math.random() * MAX_LIFESPAN_OFFSET;
+                
+                return new HeartParticle(x, y, velocityX, velocityY, font, color, lifeSpan);
+            }
+        }
+
+        // --- PARTICLE SYSTEM (Tương tự ParticleSystem.java) ---
+        class ParticleSystem {
+            constructor() {
+                this.particles = [];
+            }
+
+            addParticle(particle) {
+                this.particles.push(particle);
+            }
+
+            update(deltaTime) {
+                // Lọc ra các hạt còn sống, hiệu quả hơn là duyệt và xóa
+                this.particles = this.particles.filter(p => p.isAlive !== false);
+                for (const particle of this.particles) {
+                    particle.update(deltaTime);
+                }
+            }
+
+            render(ctx) {
+                for (const particle of this.particles) {
+                    particle.render(ctx);
+                }
+            }
+        }
+        
+        // --- KHỞI TẠO VÀ CHẠY VÒNG LẶP CHÍNH ---
+        const textGenerator = new TextGenerator();
+        const particleFactory = new ParticleFactory(textGenerator);
+        const particleSystem = new ParticleSystem();
+
+        let lastUpdateTime = 0;
+        let timeSinceLastSpawn = 0;
+
+        function animationLoop(currentTime) {
+            // Tính toán deltaTime (thời gian trôi qua giữa các khung hình)
+            const deltaTime = (currentTime - lastUpdateTime) / 1000; // đổi sang giây
+            lastUpdateTime = currentTime;
+            
+            // Sinh hạt mới
+            timeSinceLastSpawn += deltaTime;
+            if (timeSinceLastSpawn >= PARTICLE_SPAWN_INTERVAL) {
+                if (Math.random() < 0.7) { // 70% là chữ, 30% là tim
+                    particleSystem.addParticle(particleFactory.createRandomTextParticle(canvas.width, canvas.height));
+                } else {
+                    particleSystem.addParticle(particleFactory.createRandomHeartParticle(canvas.width, canvas.height));
+                }
+                timeSinceLastSpawn = 0;
+            }
+
+            // Cập nhật trạng thái
+            particleSystem.update(deltaTime);
+            
+            // Xóa màn hình
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Vẽ lại
+            particleSystem.render(ctx);
+
+            // Yêu cầu trình duyệt vẽ khung hình tiếp theo
+            requestAnimationFrame(animationLoop);
+        }
+        
+        // Bắt đầu vòng lặp
+        requestAnimationFrame(animationLoop);
+        
+        // Xử lý khi người dùng thay đổi kích thước cửa sổ
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+
+    </script>
+</body>
+</html>
