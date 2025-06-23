@@ -20,6 +20,11 @@
     <!-- Đây là nơi hiệu ứng sẽ được vẽ -->
     <canvas id="loveWallCanvas"></canvas>
 
+    <audio id="background-music" loop>
+        <source src="phepmau.mp3" type="audio/mpeg">
+        Trình duyệt của bạn không hỗ trợ phát âm thanh.
+    </audio>
+    
     <script>
         // Lấy canvas và context để vẽ
         const canvas = document.getElementById('loveWallCanvas');
@@ -244,7 +249,7 @@
         }
         
         // Bắt đầu vòng lặp
-        requestAnimationFrame(animationLoop);
+        //requestAnimationFrame(animationLoop);
         
         // Xử lý khi người dùng thay đổi kích thước cửa sổ
         window.addEventListener('resize', () => {
@@ -252,6 +257,33 @@
             canvas.height = window.innerHeight;
         });
 
+        // Vẽ màn hình chờ ban đầu
+        ctx.fillStyle = 'white';
+        ctx.font = 'bold 24px Arial';
+        ctx.textAlign = 'center';
+        ctx.fillText('Nhấn vào màn hình để bắt đầu', canvas.width / 2, canvas.height / 2);
+        ctx.font = '16px Arial';
+        ctx.fillText('(Âm nhạc sẽ được phát)', canvas.width / 2, canvas.height / 2 + 40);
+
+
+        // Lắng nghe sự kiện click chuột một lần duy nhất để bắt đầu
+        window.addEventListener('click', () => {
+            // Lấy phần tử audio
+            const music = document.getElementById('background-music');
+            
+            // Thử phát nhạc
+            music.play().then(() => {
+                // Nhạc đã bắt đầu thành công
+                console.log("Music started!");
+            }).catch(error => {
+                // Lỗi xảy ra (ví dụ: người dùng chưa tương tác)
+                console.error("Music playback failed:", error);
+            });
+
+            // Bắt đầu vòng lặp animation
+            requestAnimationFrame(animationLoop);
+
+        }, { once: true }); // { once: true } đảm bảo sự kiện này chỉ chạy 1 lần
     </script>
 </body>
 </html>
