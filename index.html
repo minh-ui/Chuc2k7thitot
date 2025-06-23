@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Love Wall - Lời chúc 2k7</title>
+    <title>Chúc các em thi tốt nha!!!</title>
     <style>
         /* CSS cho toàn bộ trang và giao diện bắt đầu */
         body {
@@ -108,9 +108,9 @@
 <body>
     <div id="start-screen">
         <h1>Gửi Lời Chúc 2k7</h1>
-        <p>Hãy nhập tên của bạn và bắt đầu nhận những lời chúc may mắn cho kỳ thi!</p>
-        <input type="text" id="name-input" placeholder="Nhập tên của bạn ở đây...">
-        <button id="start-button">Bắt Đầu</button>
+        <p>Nhập tên của em ở đấy nhé!</p>
+        <input type="text" id="name-input" placeholder="Họ và tên">
+        <button id="start-button">Bấm vô đây nè!</button>
     </div>
 
     <canvas id="loveWallCanvas"></canvas>
@@ -138,7 +138,7 @@
 
         // --- CÁC HẰNG SỐ CẤU HÌNH ---
         // Đặt tên các hằng số rõ ràng hơn, thêm MIN/MAX cho các giá trị ngẫu nhiên
-        const PARTICLE_SPAWN_INTERVAL_SECONDS = 0.05; // Thời gian giữa các lần sinh hạt
+        const PARTICLE_SPAWN_INTERVAL_SECONDS = 0.2; // Thời gian giữa các lần sinh hạt
         const PARTICLE_MIN_VELOCITY_Y = 50; // Vận tốc Y tối thiểu (pixels/giây)
         const PARTICLE_MAX_VELOCITY_Y_OFFSET = 50; // Khoảng dao động của vận tốc Y
         const PARTICLE_MAX_VELOCITY_X_OFFSET = 50; // Khoảng dao động của vận tốc X
@@ -154,8 +154,8 @@
         class TextGenerator {
             constructor() {
                 this.baseMessages = [
-                    "Bình tĩnh, tự tin, chiến thắng!", "Chúc các bạn thi tốt môn Toán",
-                    "Mục tiêu 10 điểm!", "Đỗ nguyện vọng 1 nhé!",
+                    "Bình tĩnh, tự tin, chiến thắng!", "Chúc các em thi tốt",
+                    "Mục tiêu 10 điểm!", "Đỗ nguyện vọng 1 nhé!","100 trịu nhaaa",
                     "Làm bài cẩn thận, không sai ngu", "Cố lên các sĩ tử!",
                     "Vượt mọi giới hạn lim", "Hàm số đồng biến, điểm số tăng đều",
                     "Tìm max(điểm)", "Oxyz muôn năm", "Tích phân không đổi cận",
@@ -174,6 +174,7 @@
                         this.messages.push(`Chúc ${trimmedName} thi tốt!`);
                         this.messages.push(`${trimmedName} cố lên!`);
                         this.messages.push(`${trimmedName} đỗ NV1!`);
+                        this.messages.push(`${trimmedName} lấy đc 100 trịu nhé!`);
                     }
                 }
             }
