@@ -131,7 +131,7 @@
                 "Làm bài cẩn thận, không sai ngu", "Cố lên các sĩ tử!",
                 "Vượt mọi giới hạn lim", "Hàm số đồng biến, điểm số tăng đều",
                 "Tìm max(điểm)", "Oxyz muôn năm", "Tích phân không đổi cận",
-                "∫f(x)dx", "x → +∞", "Δ = b² - 4ac", "a² + b² = c²","10 toán","10 toán","10 toán","10 toán","10 toán"
+                "∫f(x)dx", "x → +∞", "Δ = b² - 4ac", "a² + b² = c²",
                 "sin²α + cos²α = 1", "logₐb", "z = a + bi", "π", "e", "∞", "∀x ∈ R", "f'(x₀)"
             ];
             this.messages = [...this.baseMessages];
@@ -252,6 +252,7 @@
     const particleSystem = new ParticleSystem();
     let lastUpdateTime = 0;
     let timeSinceLastSpawn = 0;
+    let animationFrameId = null;
 
     // --- VÒNG LẶP ANIMATION CHÍNH ---
     function animationLoop(currentTime) {
@@ -273,7 +274,7 @@
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         particleSystem.render(ctx);
 
-        requestAnimationFrame(animationLoop);
+        animationFrameId = requestAnimationFrame(animationLoop);
     }
 
     // --- XỬ LÝ SỰ KIỆN KHI NHẤN NÚT BẮT ĐẦU ---
@@ -288,7 +289,10 @@
         startScreen.classList.add('hidden');
         
         // Bắt đầu vòng lặp animation
-        requestAnimationFrame(animationLoop);
+        // Kiểm tra để đảm bảo không gọi nhiều lần
+        if (!animationFrameId) {
+            requestAnimationFrame(animationLoop);
+        }
     });
 
     // --- XỬ LÝ KHI THAY ĐỔI KÍCH THƯỚC CỬA SỔ ---
