@@ -138,8 +138,8 @@
 </head>
 <body>
     <div id="start-screen">
-        <h1>Gửi Lời Chúc 2k7</h1>
-        <p>Nhập tên của em ở đây và thử bắt lấy điểm 10 may mắn nhé!</p>
+        <h1>Gửi Tới 2k7</h1>
+        <p>Nhập tên của em ở đây và thử bắt lấy điểm em mong muốn nhé!</p>
         <input type="text" id="name-input" placeholder="Họ và tên">
         <button id="start-button">Bấm vô đây nè!</button>
     </div>
@@ -296,10 +296,11 @@
 
             // Kiểm tra xem một điểm (clickX, clickY) có nằm trong hạt này không
             isClicked(clickX, clickY) {
-                const left = this.x - this.width / 2;
-                const right = this.x + this.width / 2;
-                const top = this.y - this.height / 2;
-                const bottom = this.y + this.height / 2;
+                const padding = 10;
+                const left = this.x - this.width / 2 - padding;
+                const right = this.x + this.width / 2 + padding;
+                const top = this.y - this.height / 2 - padding;
+                const bottom = this.y + this.height / 2 + padding;
                 return clickX >= left && clickX <= right && clickY >= top && clickY <= bottom;
             }
         }
