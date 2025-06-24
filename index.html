@@ -376,23 +376,35 @@
             }
 
             // Phương thức mới để xử lý click
-            handleClick(clickX, clickY) {
+        handleClick(clickX, clickY) {
+                console.log(`====================\nCLICKED AT: X=${clickX.toFixed(2)}, Y=${clickY.toFixed(2)}`);
+
+                let scoreFound = false;
                 for (let i = this.particles.length - 1; i >= 0; i--) {
                     const p = this.particles[i];
-                    if (p.type === 'score' && p.alive && p.isClicked(clickX, clickY)) {
-                        chosenScoreSpan.textContent = p.score;
-                        scoreDisplay.classList.remove('fade-out');
-                        scoreDisplay.classList.add('visible');
+                    
+                    if (p.type === 'score' && p.alive) {
+                        // In ra thông tin của mỗi hạt điểm để so sánh
+                        console.log(`Checking score particle: ${p.score} at X=${p.x.toFixed(2)}, Y=${p.y.toFixed(2)}`);
                         
-                        clearTimeout(scoreDisplay.timeoutId);
-                        scoreDisplay.timeoutId = setTimeout(() => {
-                            scoreDisplay.classList.remove('visible');
-                            scoreDisplay.classList.add('fade-out');
-                        }, SCORE_DISPLAY_DURATION_SECONDS * 1000);
-
-                        p.alive = false; 
-                        break; 
+                        if (p.isClicked(clickX, clickY)) {
+                            console.log('%cSUCCESS! This particle was clicked.', 'color: green; font-weight: bold;');
+                            chosenScoreSpan.textContent = p.score;
+                            scoreDisplay.classList.remove('fade-out');
+                            scoreDisplay.classList.add('visible');
+                            clearTimeout(scoreDisplay.timeoutId);
+                            scoreDisplay.timeoutId = setTimeout(() => {
+                                scoreDisplay.classList.remove('visible');
+                                scoreDisplay.classList.add('fade-out');
+                            }, SCORE_DISPLAY_DURATION_SECONDS * 1000);
+                            p.alive = false;
+                            scoreFound = true;
+                            break; 
+                        }
                     }
+                }
+                if (!scoreFound) {
+                    console.log('%cMissed. No score particle was hit at this location.', 'color: orange;');
                 }
             }
         }
