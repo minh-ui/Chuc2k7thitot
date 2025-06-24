@@ -129,6 +129,10 @@
             visibility: visible;
             transform: translateX(-50%) translateY(0);
         }
+        #score-display.fade-out {
+            opacity: 0;
+            transition: opacity 1s ease-out;
+        }
     </style>
 </head>
 <body>
@@ -185,6 +189,8 @@
         const SCORE_SPAWN_CHANCE = 0.05; // Tỷ lệ xuất hiện điểm số (5%)
         const SCORE_MIN = 6; // Điểm số tối thiểu có thể rơi
         const SCORE_MAX = 10; // Điểm số tối đa có thể rơi
+        const SCORE_DISPLAY_DURATION_SECONDS = 3; // Thời gian hiển thị điểm số sau khi click
+
 
         // --- TEXT GENERATOR ---
         class TextGenerator {
@@ -286,8 +292,9 @@
                 this.type = 'score'; // Đặt loại hạt là 'score'
                 // Tính toán kích thước gần đúng để kiểm tra click
                 // Lưu ý: measureText cần được gọi sau khi font được thiết lập
+                // Để đảm bảo measureText hoạt động chính xác, cần thiết lập font trước khi gọi nó
+                ctx.font = this.font;
                 this.width = ctx.measureText(this.score.toString()).width;
-                // Ước lượng chiều cao của font, có thể điều chỉnh
                 this.height = parseFloat(this.font); // Lấy giá trị số từ font (e.g., "50px")
             }
 
@@ -381,11 +388,11 @@
             }
 
             update(deltaTime) {
-                // Duyệt ngược và xóa các hạt đã chết để tránh lỗi index khi splice
-                // Hoặc hiệu quả hơn: tạo một mảng mới chỉ chứa các hạt còn sống
+                // Duyệt ngược và xóa các hạt đã chết hoặc ra khỏi màn hình
                 this.particles = this.particles.filter(p => {
                     p.update(deltaTime);
-                    return p.alive && p.y < canvas.height + 50; // Giữ lại hạt trên màn hình
+                    // Giữ lại hạt còn sống và nằm trong hoặc gần màn hình
+                    return p.alive && p.y < canvas.height + 100 && p.y > -100; // Thêm buffer để không biến mất quá sớm
                 });
             }
 
@@ -398,23 +405,29 @@
 
             // Phương thức mới để xử lý click
             handleClick(clickX, clickY) {
+                let scoreFound = false;
+                // Duyệt ngược để xử lý các hạt ở trên cùng (vẽ sau cùng) trước
                 for (let i = this.particles.length - 1; i >= 0; i--) {
                     const p = this.particles[i];
                     if (p.type === 'score' && p.isClicked(clickX, clickY)) {
                         chosenScoreSpan.textContent = p.score;
+                        scoreDisplay.classList.remove('fade-out'); // Đảm bảo không có fade-out
                         scoreDisplay.classList.add('visible'); // Hiển thị điểm đã chọn
+                        
+                        // Đặt hẹn giờ để ẩn điểm sau vài giây
+                        clearTimeout(scoreDisplay.timeoutId); // Xóa timeout cũ nếu có
+                        scoreDisplay.timeoutId = setTimeout(() => {
+                            scoreDisplay.classList.remove('visible');
+                            scoreDisplay.classList.add('fade-out'); // Thêm fade-out effect
+                        }, SCORE_DISPLAY_DURATION_SECONDS * 1000);
 
-                        // Tạm dừng sinh hạt và các hạt hiện tại để tập trung vào điểm
-                        cancelAnimationFrame(animationFrameId);
-                        animationFrameId = null;
-                        this.particles = []; // Xóa tất cả hạt để không bị rối
-                        
-                        // Có thể thêm hiệu ứng âm thanh hoặc animation nhỏ cho điểm được chọn
-                        
-                        return true; // Đã xử lý click
+                        // Đánh dấu hạt điểm số đã được "lấy" để nó biến mất nhanh hơn
+                        p.lifeSpan = p.age + 0.5; // Cho hạt này sống thêm 0.5 giây rồi biến mất
+                        scoreFound = true;
+                        break; // Chỉ xử lý một điểm mỗi lần click
                     }
                 }
-                return false; // Không có điểm nào được click
+                return scoreFound; 
             }
         }
 
@@ -518,12 +531,6 @@
 
         // --- XỬ LÝ SỰ KIỆN CLICK TRÊN CANVAS (Bắt điểm số) ---
         canvas.addEventListener('click', (event) => {
-            // Kiểm tra xem màn hình điểm số đã hiển thị chưa (nghĩa là đã chọn điểm rồi)
-            // Nếu đã hiển thị thì không cho click nữa
-            if (scoreDisplay.classList.contains('visible')) {
-                return;
-            }
-
             const rect = canvas.getBoundingClientRect();
             const clickX = event.clientX - rect.left;
             const clickY = event.clientY - rect.top;
