@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Love Wall - Lời chúc 2k7</title>
+    <title>Chúc 2k7 thi tốt nha!!!</title>
     <style>
         /* CSS cho toàn bộ trang và giao diện bắt đầu */
         body {
@@ -121,19 +121,19 @@
 <body>
     <div id="start-screen">
         <h1>Gửi Lời Chúc 2k7</h1>
-        <p>Hãy nhập tên của bạn và điểm mong muốn để nhận những lời chúc may mắn cho kỳ thi!</p>
+        <p>Hãy nhập tên và điểm của em nhé!</p>
         
         <div class="input-group">
-            <label for="name-input">Tên của bạn:</label>
-            <input type="text" id="name-input" placeholder="Nhập tên của bạn ở đây...">
+            <label for="name-input">Nhập tên ở đây nha:</label>
+            <input type="text" id="name-input" placeholder="Họ và tên...">
         </div>
         
         <div class="input-group">
-            <label for="score-input">Điểm mong muốn:</label>
+            <label for="score-input">Điểm thi của em:</label>
             <input type="number" id="score-input" placeholder="Ví dụ: 10" min="0" max="10" step="0.1">
         </div>
 
-        <button id="start-button">Bắt Đầu</button>
+        <button id="start-button">Bấm vô đây nè!</button>
     </div>
 
     <canvas id="loveWallCanvas"></canvas>
@@ -181,9 +181,9 @@
         class TextGenerator {
             constructor() {
                 this.baseMessages = [
-                    "Bình tĩnh, tự tin, chiến thắng!", "Chúc các bạn thi tốt môn Toán",
+                    "Bình tĩnh, tự tin, chiến thắng!", "Chúc em thi tốt nha!",
                     "Mục tiêu 10 điểm!", "Đỗ nguyện vọng 1 nhé!",
-                    "Làm bài cẩn thận, không sai ngu", "Cố lên các sĩ tử!",
+                    "Làm bài cẩn thận, không sai ngu", "Cố lên các sĩ tử!","Chúc em lấy đc Vision nha!","Chúc em lấy được 100 triệu nha!"
                     "Vượt mọi giới hạn lim", "Hàm số đồng biến, điểm số tăng đều",
                     "Tìm max(điểm)", "Oxyz muôn năm", "Tích phân không đổi cận",
                     "∫f(x)dx", "x → +∞", "Δ = b² - 4ac", "a² + b² = c²",
@@ -204,6 +204,7 @@
                     if (!this.messages.includes(`Chúc ${this.desiredScore} điểm!`)) {
                         this.messages.push(`Chúc ${this.desiredScore} điểm!`);
                         this.messages.push(`Cố gắng đạt ${this.desiredScore} nhé!`);
+
                     }
                 } else {
                     this.desiredScore = null; // Đặt lại nếu không hợp lệ
