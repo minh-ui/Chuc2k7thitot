@@ -3,25 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Love Wall - Lời chúc 2k7</title>
+    <title>Chúc các em thi tốt nha!!!</title>
     <style>
-        /* CSS cho toàn bộ trang và giao diện bắt đầu */
+        /* CSS CŨ CỦA BẠN (GIỮ NGUYÊN HOÀN TOÀN) */
         body {
             margin: 0;
             overflow: hidden;
             background-color: black;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            display: flex; /* Dùng flexbox để căn giữa dễ hơn */
+            display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh; /* Đảm bảo body chiếm toàn bộ chiều cao viewport */
+            height: 100vh;
         }
         canvas {
             display: block;
             position: absolute;
             top: 0;
             left: 0;
-            z-index: 1; /* Canvas nằm dưới giao diện */
+            z-index: 1;
+            cursor: pointer; /* Thêm con trỏ để báo hiệu có thể click */
         }
         #start-screen {
             position: absolute;
@@ -33,16 +34,16 @@
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            background-color: rgba(0, 0, 0, 0.7); /* Nền đen mờ */
-            z-index: 2; /* Giao diện nằm trên canvas */
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 2;
             color: white;
             text-align: center;
-            transition: opacity 1s ease-out, visibility 1s ease-out; /* Thêm transition cho visibility */
+            transition: opacity 1s ease-out, visibility 1s ease-out;
         }
         #start-screen.hidden {
             opacity: 0;
-            pointer-events: none; /* Không cho phép tương tác khi đã ẩn */
-            visibility: hidden; /* Ẩn hoàn toàn khỏi DOM sau khi mờ dần */
+            pointer-events: none;
+            visibility: hidden;
         }
         #start-screen h1 {
             font-size: 3.5em;
@@ -84,8 +85,6 @@
             transform: scale(1.05);
             box-shadow: 0 0 20px rgba(255, 255, 255, 0.7);
         }
-
-        /* Thêm style cho nút điều khiển nhạc */
         #music-toggle {
             position: fixed;
             bottom: 20px;
@@ -96,29 +95,66 @@
             border-radius: 5px;
             cursor: pointer;
             font-size: 0.9em;
-            z-index: 10; /* Đảm bảo nút nằm trên mọi thứ */
-            opacity: 0; /* Ẩn ban đầu */
+            z-index: 10;
+            opacity: 0;
             transition: opacity 0.5s ease-in-out;
         }
         #music-toggle.visible {
             opacity: 1;
+        }
+
+        /* === CSS MỚI CHO ĐIỂM SỐ === */
+        #score-display {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-150%); /* Bắt đầu ẩn ở trên */
+            background-color: rgba(255, 255, 255, 0.9);
+            color: black;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-size: 1.8em;
+            font-weight: bold;
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.7);
+            z-index: 5;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.5s ease-in-out, visibility 0.5s ease-in-out, transform 0.5s ease-in-out;
+            text-align: center;
+        }
+
+        #score-display.visible {
+            opacity: 1;
+            visibility: visible;
+            transform: translateX(-50%) translateY(0); /* Di chuyển vào vị trí */
+        }
+        
+        #score-display.fade-out {
+            opacity: 0;
+            transform: translateX(-50%) translateY(-150%); /* Biến mất lên trên */
+            transition: opacity 1s ease-out, transform 1s ease-out;
         }
     </style>
 </head>
 <body>
     <div id="start-screen">
         <h1>Gửi Lời Chúc 2k7</h1>
-        <p>Hãy nhập tên của bạn và bắt đầu nhận những lời chúc may mắn cho kỳ thi!</p>
-        <input type="text" id="name-input" placeholder="Nhập tên của bạn ở đây...">
-        <button id="start-button">Bắt Đầu</button>
+        <p>Nhập tên của em ở đây và thử bắt lấy điểm 10 may mắn nhé!</p>
+        <input type="text" id="name-input" placeholder="Họ và tên">
+        <button id="start-button">Bấm vô đây nè!</button>
+    </div>
+
+    <!-- === HTML MỚI CHO KHUNG ĐIỂM SỐ === -->
+    <div id="score-display">
+        Chúc mừng em đã đạt được số điểm: <span id="chosen-score"></span>!
     </div>
 
     <canvas id="loveWallCanvas"></canvas>
     <audio id="background-music" loop>
+        <!-- Hãy đảm bảo bạn có file 'phepmau.mp3' trong cùng thư mục -->
         <source src="phepmau.mp3" type="audio/mpeg">
         Trình duyệt của bạn không hỗ trợ phát âm thanh.
     </audio>
-
     <button id="music-toggle" style="display: none;">Tắt nhạc</button>
 
     <script>
@@ -130,56 +166,58 @@
         const startButton = document.getElementById('start-button');
         const music = document.getElementById('background-music');
         const musicToggleButton = document.getElementById('music-toggle');
+        const scoreDisplay = document.getElementById('score-display');
+        const chosenScoreSpan = document.getElementById('chosen-score');
 
         // --- Cài đặt Canvas ---
-        // Đặt kích thước canvas ban đầu
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
 
         // --- CÁC HẰNG SỐ CẤU HÌNH ---
-        // Đặt tên các hằng số rõ ràng hơn, thêm MIN/MAX cho các giá trị ngẫu nhiên
-        const PARTICLE_SPAWN_INTERVAL_SECONDS = 0.05; // Thời gian giữa các lần sinh hạt
-        const PARTICLE_MIN_VELOCITY_Y = 50; // Vận tốc Y tối thiểu (pixels/giây)
-        const PARTICLE_MAX_VELOCITY_Y_OFFSET = 50; // Khoảng dao động của vận tốc Y
-        const PARTICLE_MAX_VELOCITY_X_OFFSET = 50; // Khoảng dao động của vận tốc X
-        const TEXT_MIN_FONT_SIZE = 20; // Kích thước font tối thiểu
-        const TEXT_MAX_FONT_SIZE_OFFSET = 10; // Khoảng dao động của kích thước font
-        const HEART_MIN_SIZE = 25; // Kích thước trái tim tối thiểu
-        const HEART_MAX_SIZE_OFFSET = 15; // Khoảng dao động của kích thước trái tim
-        const PARTICLE_MIN_LIFESPAN_SECONDS = 10.0; // Tuổi thọ tối thiểu của hạt (giây)
-        const PARTICLE_MAX_LIFESPAN_OFFSET_SECONDS = 10.0; // Khoảng dao động của tuổi thọ
-        const HEART_SPAWN_CHANCE = 0.1; // Tỷ lệ xuất hiện trái tim (10%)
+        const PARTICLE_SPAWN_INTERVAL_SECONDS = 0.2; 
+        const PARTICLE_MIN_VELOCITY_Y = 50; 
+        const PARTICLE_MAX_VELOCITY_Y_OFFSET = 50; 
+        const PARTICLE_MAX_VELOCITY_X_OFFSET = 50; 
+        const TEXT_MIN_FONT_SIZE = 20; 
+        const TEXT_MAX_FONT_SIZE_OFFSET = 10; 
+        const HEART_MIN_SIZE = 25; 
+        const HEART_MAX_SIZE_OFFSET = 15; 
+        const PARTICLE_MIN_LIFESPAN_SECONDS = 10.0; 
+        const PARTICLE_MAX_LIFESPAN_OFFSET_SECONDS = 10.0; 
+        const HEART_SPAWN_CHANCE = 0.1;
+        // Các hằng số mới cho điểm số
+        const SCORE_SPAWN_CHANCE = 0.05; // 5% cơ hội xuất hiện điểm số
+        const SCORE_MIN = 6; // Điểm tối thiểu
+        const SCORE_MAX = 10; // Điểm tối đa
+        const SCORE_DISPLAY_DURATION_SECONDS = 4; // Thời gian hiển thị điểm sau khi click (giây)
 
         // --- TEXT GENERATOR ---
         class TextGenerator {
             constructor() {
                 this.baseMessages = [
-                    "Bình tĩnh, tự tin, chiến thắng!", "Chúc các bạn thi tốt môn Toán",
-                    "Mục tiêu 10 điểm!", "Đỗ nguyện vọng 1 nhé!",
+                    "Bình tĩnh, tự tin, chiến thắng!", "Chúc các em thi tốt",
+                    "Mục tiêu 10 điểm!", "Đỗ nguyện vọng 1 nhé!", "100 trịu nhaaa",
                     "Làm bài cẩn thận, không sai ngu", "Cố lên các sĩ tử!",
                     "Vượt mọi giới hạn lim", "Hàm số đồng biến, điểm số tăng đều",
                     "Tìm max(điểm)", "Oxyz muôn năm", "Tích phân không đổi cận",
                     "∫f(x)dx", "x → +∞", "Δ = b² - 4ac", "a² + b² = c²",
                     "sin²α + cos²α = 1", "logₐb", "z = a + bi", "π", "e", "∞", "∀x ∈ R", "f'(x₀)"
                 ];
-                // Sao chép baseMessages sang messages để có thể thêm tin nhắn cá nhân mà không làm mất gốc
                 this.messages = [...this.baseMessages];
             }
 
             personalize(name) {
                 if (name && name.trim() !== '') {
                     const trimmedName = name.trim();
-                    // Thêm các tin nhắn cá nhân hóa một cách an toàn, tránh trùng lặp nếu người dùng nhập lại
-                    if (!this.messages.includes(`Chúc ${trimmedName} thi tốt!`)) {
-                        this.messages.push(`Chúc ${trimmedName} thi tốt!`);
-                        this.messages.push(`${trimmedName} cố lên!`);
-                        this.messages.push(`${trimmedName} đỗ NV1!`);
-                    }
+                    this.messages.push(`Chúc ${trimmedName} thi tốt!`);
+                    this.messages.push(`${trimmedName} cố lên!`);
+                    this.messages.push(`${trimmedName} đỗ NV1!`);
+                    this.messages.push(`${trimmedName} lấy đc 100 trịu nhé!`);
                 }
             }
 
             getRandomText() {
-                if (this.messages.length === 0) return "Chúc may mắn!"; // Trường hợp không có tin nhắn nào
+                if (this.messages.length === 0) return "Chúc may mắn!";
                 return this.messages[Math.floor(Math.random() * this.messages.length)];
             }
         }
@@ -191,47 +229,78 @@
                 this.y = y;
                 this.velocityX = velocityX;
                 this.velocityY = velocityY;
-                this.lifeSpan = lifeSpan; // Tổng thời gian sống
-                this.age = 0; // Thời gian đã sống
+                this.lifeSpan = lifeSpan;
+                this.age = 0;
                 this.opacity = 1.0;
-                this.alive = true; // Cờ hiệu để biết hạt còn sống hay không
+                this.alive = true;
+                this.type = 'generic'; 
             }
 
             update(deltaTime) {
                 if (!this.alive) return;
-
                 this.x += this.velocityX * deltaTime;
                 this.y += this.velocityY * deltaTime;
                 this.age += deltaTime;
-
+                this.opacity = 1.0 - (this.age / this.lifeSpan);
                 if (this.age >= this.lifeSpan) {
-                    this.alive = false; // Đánh dấu hạt đã chết
-                } else {
-                    // Tính độ mờ, mờ dần khi gần hết tuổi thọ
-                    this.opacity = 1.0 - (this.age / this.lifeSpan);
+                    this.alive = false;
                 }
             }
-
-            // Phương thức render rỗng, sẽ được ghi đè bởi lớp con
             render(ctx) {}
         }
 
-        // --- TEXT PARTICLE (VÀ HEART PARTICLE) ---
+        // --- TEXT PARTICLE (Kế thừa từ Particle) ---
         class TextParticle extends Particle {
             constructor(text, x, y, velocityX, velocityY, font, color, lifeSpan) {
-                super(x, y, velocityX, velocityY, lifeSpan); // Gọi constructor của lớp cha
+                super(x, y, velocityX, velocityY, lifeSpan);
                 this.text = text;
                 this.font = font;
-                this.color = color; // { r, g, b }
+                this.color = color;
+                this.type = 'text';
             }
 
             render(ctx) {
                 if (!this.alive) return;
-
                 ctx.font = this.font;
-                // Đặt màu với độ mờ hiện tại
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
                 ctx.fillStyle = `rgba(${this.color.r}, ${this.color.g}, ${this.color.b}, ${this.opacity})`;
                 ctx.fillText(this.text, this.x, this.y);
+            }
+        }
+
+        // --- SCORE PARTICLE (Lớp mới cho điểm số) ---
+        class ScoreParticle extends Particle {
+            constructor(score, x, y, velocityX, velocityY, font, color, lifeSpan) {
+                super(x, y, velocityX, velocityY, lifeSpan);
+                this.score = score;
+                this.font = font;
+                this.color = color;
+                this.type = 'score';
+
+                // Đo kích thước của hạt để kiểm tra click
+                ctx.font = this.font;
+                const metrics = ctx.measureText(this.score.toString());
+                this.width = metrics.width;
+                this.height = parseFloat(this.font); // Ước lượng chiều cao từ kích thước font
+            }
+
+            render(ctx) {
+                if (!this.alive) return;
+                ctx.font = this.font;
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillStyle = `rgba(${this.color.r}, ${this.color.g}, ${this.color.b}, ${this.opacity})`;
+                ctx.fillText(this.score.toString(), this.x, this.y);
+            }
+
+            // Kiểm tra xem một điểm (clickX, clickY) có nằm trong hạt này không
+            isClicked(clickX, clickY) {
+                const left = this.x - this.width / 2;
+                const right = this.x + this.width / 2;
+                const top = this.y - this.height / 2;
+                const bottom = this.y + this.height / 2;
+                return clickX >= left && clickX <= right && clickY >= top && clickY <= bottom;
             }
         }
 
@@ -243,34 +312,42 @@
 
             createRandomTextParticle(canvasWidth) {
                 const text = this.textGenerator.getRandomText();
-                const x = Math.random() * canvasWidth; // Vị trí X ngẫu nhiên
-                const y = -20; // Bắt đầu từ trên cùng màn hình
-                const velocityX = (Math.random() - 0.5) * PARTICLE_MAX_VELOCITY_X_OFFSET; // Vận tốc X ngẫu nhiên
-                const velocityY = PARTICLE_MIN_VELOCITY_Y + Math.random() * PARTICLE_MAX_VELOCITY_Y_OFFSET; // Vận tốc Y ngẫu nhiên
+                const x = Math.random() * canvasWidth;
+                const y = -30;
+                const velocityX = (Math.random() - 0.5) * PARTICLE_MAX_VELOCITY_X_OFFSET;
+                const velocityY = PARTICLE_MIN_VELOCITY_Y + Math.random() * PARTICLE_MAX_VELOCITY_Y_OFFSET;
                 const fontSize = TEXT_MIN_FONT_SIZE + Math.random() * TEXT_MAX_FONT_SIZE_OFFSET;
                 const font = `bold ${fontSize}px 'Segoe UI'`;
-                // Màu ngẫu nhiên
-                const color = {
-                    r: Math.floor(Math.random() * 256),
-                    g: Math.floor(Math.random() * 256),
-                    b: Math.floor(Math.random() * 256)
-                };
+                const color = { r: Math.floor(Math.random() * 256), g: Math.floor(Math.random() * 256), b: Math.floor(Math.random() * 256) };
                 const lifeSpan = PARTICLE_MIN_LIFESPAN_SECONDS + Math.random() * PARTICLE_MAX_LIFESPAN_OFFSET_SECONDS;
                 return new TextParticle(text, x, y, velocityX, velocityY, font, color, lifeSpan);
             }
 
             createRandomHeartParticle(canvasWidth) {
                 const x = Math.random() * canvasWidth;
-                const y = -20;
-                // Vận tốc trái tim thường chậm hơn một chút
+                const y = -30;
                 const velocityX = (Math.random() - 0.5) * PARTICLE_MAX_VELOCITY_X_OFFSET * 0.6;
                 const velocityY = (PARTICLE_MIN_VELOCITY_Y * 0.6) + Math.random() * (PARTICLE_MAX_VELOCITY_Y_OFFSET * 0.6);
                 const fontSize = HEART_MIN_SIZE + Math.random() * HEART_MAX_SIZE_OFFSET;
                 const font = `bold ${fontSize}px 'Segoe UI'`;
-                // Màu trái tim thường là đỏ
                 const color = { r: 255, g: Math.floor(Math.random() * 100), b: Math.floor(Math.random() * 100) };
                 const lifeSpan = PARTICLE_MIN_LIFESPAN_SECONDS + Math.random() * PARTICLE_MAX_LIFESPAN_OFFSET_SECONDS;
                 return new TextParticle("❤", x, y, velocityX, velocityY, font, color, lifeSpan);
+            }
+
+            // Phương thức mới để tạo hạt điểm số
+            createRandomScoreParticle(canvasWidth) {
+                const score = Math.floor(Math.random() * (SCORE_MAX - SCORE_MIN + 1)) + SCORE_MIN;
+                const x = Math.random() * canvasWidth;
+                const y = -40;
+                const velocityX = (Math.random() - 0.5) * PARTICLE_MAX_VELOCITY_X_OFFSET * 0.8;
+                const velocityY = (PARTICLE_MIN_VELOCITY_Y * 0.8) + Math.random() * (PARTICLE_MAX_VELOCITY_Y_OFFSET * 0.8);
+                const fontSize = 40 + Math.random() * 20; // Làm cho điểm số to và dễ thấy hơn
+                const font = `bold ${fontSize}px 'Segoe UI'`;
+                // Màu vàng/cam nổi bật
+                const color = { r: 255, g: Math.floor(Math.random() * 100) + 155, b: 0 }; 
+                const lifeSpan = PARTICLE_MIN_LIFESPAN_SECONDS * 0.8 + Math.random() * PARTICLE_MAX_LIFESPAN_OFFSET_SECONDS * 0.8;
+                return new ScoreParticle(score, x, y, velocityX, velocityY, font, color, lifeSpan);
             }
         }
 
@@ -285,63 +362,71 @@
             }
 
             update(deltaTime) {
-                // Duyệt ngược và xóa các hạt đã chết để tránh lỗi index khi splice
-                // Hoặc hiệu quả hơn: tạo một mảng mới chỉ chứa các hạt còn sống
                 this.particles = this.particles.filter(p => {
                     p.update(deltaTime);
-                    return p.alive;
+                    return p.alive && p.y < canvas.height + 100 && p.y > -100;
                 });
             }
 
             render(ctx) {
-                // Chỉ vẽ các hạt còn sống
                 for (const particle of this.particles) {
                     particle.render(ctx);
                 }
             }
+
+            // Phương thức mới để xử lý click
+            handleClick(clickX, clickY) {
+                for (let i = this.particles.length - 1; i >= 0; i--) {
+                    const p = this.particles[i];
+                    if (p.type === 'score' && p.alive && p.isClicked(clickX, clickY)) {
+                        chosenScoreSpan.textContent = p.score;
+                        scoreDisplay.classList.remove('fade-out');
+                        scoreDisplay.classList.add('visible');
+                        
+                        clearTimeout(scoreDisplay.timeoutId);
+                        scoreDisplay.timeoutId = setTimeout(() => {
+                            scoreDisplay.classList.remove('visible');
+                            scoreDisplay.classList.add('fade-out');
+                        }, SCORE_DISPLAY_DURATION_SECONDS * 1000);
+
+                        p.alive = false; 
+                        break; 
+                    }
+                }
+            }
         }
 
-        // --- KHỞI TẠO CÁC HỆ THỐNG VÀ BIẾN GLOBAL ---
+        // --- KHỞI TẠO HỆ THỐNG VÀ BIẾN ---
         const textGenerator = new TextGenerator();
         const particleFactory = new ParticleFactory(textGenerator);
         const particleSystem = new ParticleSystem();
-        let lastUpdateTime = 0; // Thời gian của khung hình trước
-        let timeSinceLastSpawn = 0; // Thời gian kể từ lần cuối sinh hạt
-        let animationFrameId = null; // ID của requestAnimationFrame
-        let isMusicPlaying = false; // Trạng thái nhạc
+        let lastUpdateTime = 0;
+        let timeSinceLastSpawn = 0;
+        let animationFrameId = null;
 
         // --- VÒNG LẶP ANIMATION CHÍNH ---
         function animationLoop(currentTime) {
-            // Lần đầu tiên chạy, gán lastUpdateTime
-            if (!lastUpdateTime) {
-                lastUpdateTime = currentTime;
-            }
-            // Tính toán deltaTime (thời gian giữa 2 khung hình)
-            const deltaTime = (currentTime - lastUpdateTime) / 1000; // Đổi từ miliseconds sang giây
+            if (!lastUpdateTime) lastUpdateTime = currentTime;
+            const deltaTime = (currentTime - lastUpdateTime) / 1000;
             lastUpdateTime = currentTime;
 
-            // Cập nhật thời gian sinh hạt
             timeSinceLastSpawn += deltaTime;
             if (timeSinceLastSpawn >= PARTICLE_SPAWN_INTERVAL_SECONDS) {
-                // Random để sinh chữ hoặc trái tim
-                if (Math.random() < HEART_SPAWN_CHANCE) {
+                const randomChance = Math.random();
+                // Cập nhật logic sinh hạt
+                if (randomChance < SCORE_SPAWN_CHANCE) {
+                    particleSystem.addParticle(particleFactory.createRandomScoreParticle(canvas.width));
+                } else if (randomChance < SCORE_SPAWN_CHANCE + HEART_SPAWN_CHANCE) {
                     particleSystem.addParticle(particleFactory.createRandomHeartParticle(canvas.width));
                 } else {
                     particleSystem.addParticle(particleFactory.createRandomTextParticle(canvas.width));
                 }
-                timeSinceLastSpawn = 0; // Reset bộ đếm thời gian sinh hạt
+                timeSinceLastSpawn = 0;
             }
 
-            // Cập nhật trạng thái và vị trí của tất cả các hạt
             particleSystem.update(deltaTime);
-
-            // Xóa toàn bộ canvas để vẽ lại
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-            // Vẽ lại tất cả các hạt
             particleSystem.render(ctx);
-
-            // Yêu cầu khung hình tiếp theo
             animationFrameId = requestAnimationFrame(animationLoop);
         }
 
@@ -349,39 +434,24 @@
         function toggleMusic() {
             if (music.paused) {
                 music.play().then(() => {
-                    isMusicPlaying = true;
                     musicToggleButton.textContent = 'Tắt nhạc';
                 }).catch(e => {
                     console.error("Không thể phát nhạc:", e);
-                    // Có thể thông báo cho người dùng nếu cần
-                    alert("Trình duyệt chặn tự động phát nhạc. Vui lòng bấm để bật nhạc thủ công.");
-                    isMusicPlaying = false;
                     musicToggleButton.textContent = 'Bật nhạc';
                 });
             } else {
                 music.pause();
-                isMusicPlaying = false;
                 musicToggleButton.textContent = 'Bật nhạc';
             }
         }
 
-
-        // --- XỬ LÝ SỰ KIỆN KHI NHẤN NÚT BẮT ĐẦU ---
+        // --- XỬ LÝ KHI NHẤN NÚT BẮT ĐẦU ---
         startButton.addEventListener('click', () => {
-            const userName = nameInput.value;
-            textGenerator.personalize(userName);
-
-            // Ẩn màn hình bắt đầu một cách mượt mà
+            textGenerator.personalize(nameInput.value);
             startScreen.classList.add('hidden');
-
-            // Hiển thị nút điều khiển nhạc và bắt đầu phát
             musicToggleButton.style.display = 'block';
-            setTimeout(() => musicToggleButton.classList.add('visible'), 50); // Cho phép CSS transition hoạt động
-
-            toggleMusic(); // Cố gắng phát nhạc khi bắt đầu
-
-            // Bắt đầu vòng lặp animation
-            // Chỉ gọi requestAnimationFrame một lần duy nhất
+            setTimeout(() => musicToggleButton.classList.add('visible'), 50);
+            toggleMusic();
             if (!animationFrameId) {
                 animationFrameId = requestAnimationFrame(animationLoop);
             }
@@ -395,6 +465,14 @@
 
         // --- XỬ LÝ SỰ KIỆN NÚT ĐIỀU KHIỂN NHẠC ---
         musicToggleButton.addEventListener('click', toggleMusic);
+
+        // --- XỬ LÝ SỰ KIỆN CLICK TRÊN CANVAS (BẮT ĐIỂM) ---
+        canvas.addEventListener('click', (event) => {
+            const rect = canvas.getBoundingClientRect();
+            const clickX = event.clientX - rect.left;
+            const clickY = event.clientY - rect.top;
+            particleSystem.handleClick(clickX, clickY);
+        });
 
         // Đảm bảo nhạc bắt đầu ở trạng thái tạm dừng
         music.pause();
