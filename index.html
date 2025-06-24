@@ -5,498 +5,174 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chúc các em thi tốt nha!!!</title>
     <style>
-        /* CSS cho toàn bộ trang và giao diện bắt đầu */
-        body {
-            margin: 0;
-            overflow: hidden;
-            background-color: black;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            display: flex; /* Dùng flexbox để căn giữa dễ hơn */
-            justify-content: center;
-            align-items: center;
-            height: 100vh; /* Đảm bảo body chiếm toàn bộ chiều cao viewport */
-        }
-        canvas {
-            display: block;
-            position: absolute;
-            top: 0;
-            left: 0;
-            z-index: 1; /* Canvas nằm dưới giao diện */
-        }
-        #start-screen {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            background-color: rgba(0, 0, 0, 0.7); /* Nền đen mờ */
-            z-index: 2; /* Giao diện nằm trên canvas */
-            color: white;
-            text-align: center;
-            transition: opacity 1s ease-out, visibility 1s ease-out; /* Thêm transition cho visibility */
-        }
-        #start-screen.hidden {
-            opacity: 0;
-            pointer-events: none; /* Không cho phép tương tác khi đã ẩn */
-            visibility: hidden; /* Ẩn hoàn toàn khỏi DOM sau khi mờ dần */
-        }
-        #start-screen h1 {
-            font-size: 3.5em;
-            margin-bottom: 20px;
-            text-shadow: 0 0 15px rgba(255, 255, 255, 0.7);
-        }
-        #start-screen p {
-            font-size: 1.2em;
-            margin-bottom: 30px;
-            max-width: 80%;
-        }
-        .input-group {
-            margin-bottom: 20px;
-            width: 300px; /* Đảm bảo các input thẳng hàng */
-        }
-        .input-group label {
-            display: block;
-            margin-bottom: 5px;
-            font-size: 1.1em;
-            text-align: left; /* Căn trái nhãn */
-            width: 100%;
-            padding-left: 5px; /* Thụt lề nhẹ cho nhãn */
-            box-sizing: border-box;
-        }
-        #name-input, #score-input {
-            padding: 15px;
-            font-size: 1.2em;
-            border-radius: 10px;
-            border: 2px solid white;
-            background-color: transparent;
-            color: white;
-            text-align: center;
-            width: 100%; /* Chiếm toàn bộ chiều rộng của input-group */
-            box-sizing: border-box; /* Bao gồm padding và border vào width */
-            outline: none;
-        }
-        #name-input::placeholder, #score-input::placeholder {
-            color: rgba(255, 255, 255, 0.6);
-        }
-        #start-button {
-            padding: 15px 40px;
-            font-size: 1.5em;
-            font-weight: bold;
-            color: black;
-            background-color: white;
-            border: none;
-            border-radius: 50px;
-            cursor: pointer;
-            transition: transform 0.2s, box-shadow 0.2s;
-        }
-        #start-button:hover {
-            transform: scale(1.05);
-            box-shadow: 0 0 20px rgba(255, 255, 255, 0.7);
-        }
-
-        /* Thêm style cho nút điều khiển nhạc */
-        #music-toggle {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            padding: 10px 15px;
-            background-color: rgba(255, 255, 255, 0.8);
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 0.9em;
-            z-index: 10; /* Đảm bảo nút nằm trên mọi thứ */
-            opacity: 0; /* Ẩn ban đầu */
-            transition: opacity 0.5s ease-in-out;
-        }
-        #music-toggle.visible {
-            opacity: 1;
-        }
-
-        /* Style cho bảng hiển thị điểm khi click vào hạt điểm */
-        #score-display {
-            position: fixed;
-            top: 20px;
-            left: 50%;
-            transform: translateX(-50%) translateY(-150%); /* Bắt đầu từ trên cao và ẩn */
-            background-color: rgba(255, 255, 255, 0.9);
-            color: black;
-            padding: 15px 30px;
-            border-radius: 10px;
-            font-size: 1.8em;
-            font-weight: bold;
-            box-shadow: 0 0 20px rgba(255, 255, 255, 0.7);
-            z-index: 5; /* Nằm trên canvas nhưng dưới start-screen */
-            opacity: 0; /* Ẩn ban đầu */
-            visibility: hidden; /* Ẩn hoàn toàn */
-            transition: opacity 0.5s ease-in-out, visibility 0.5s ease-in-out, transform 0.5s ease-in-out;
-            text-align: center;
-        }
-        #score-display.visible {
-            opacity: 1;
-            visibility: visible;
-            transform: translateX(-50%) translateY(0); /* Hiện ra ở vị trí ban đầu */
-        }
-        #score-display.fade-out {
-            opacity: 0;
-            transform: translateX(-50%) translateY(-150%);
-            transition: opacity 1s ease-out, transform 1s ease-out;
-        }
+        body { margin: 0; overflow: hidden; background-color: black; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; }
+        canvas { display: block; position: absolute; top: 0; left: 0; z-index: 1; cursor: pointer; }
+        #start-screen { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; background-color: rgba(0, 0, 0, 0.7); z-index: 3; color: white; text-align: center; transition: opacity 1s ease-out, visibility 1s ease-out; }
+        #start-screen.hidden { opacity: 0; pointer-events: none; visibility: hidden; }
+        #start-screen h1 { font-size: 3.5em; margin-bottom: 20px; text-shadow: 0 0 15px rgba(255, 255, 255, 0.7); }
+        #start-screen p { font-size: 1.2em; margin-bottom: 20px; max-width: 80%; }
+        .input-group { margin-bottom: 15px; width: 300px; }
+        .input-group label { display: block; margin-bottom: 8px; font-size: 1.1em; text-align: left; }
+        .input-field { padding: 15px; font-size: 1.2em; border-radius: 10px; border: 2px solid white; background-color: transparent; color: white; text-align: center; width: 100%; box-sizing: border-box; outline: none; -moz-appearance: textfield; }
+        .input-field::-webkit-outer-spin-button, .input-field::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+        .input-field::placeholder { color: rgba(255, 255, 255, 0.6); }
+        #error-message { color: #ff5252; font-weight: bold; height: 20px; opacity: 0; transition: opacity 0.3s ease-in-out; margin-top: -10px; margin-bottom: 10px; }
+        #error-message.visible { opacity: 1; }
+        #start-button { padding: 15px 40px; font-size: 1.5em; font-weight: bold; color: black; background-color: white; border: none; border-radius: 50px; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; }
+        #start-button:hover { transform: scale(1.05); box-shadow: 0 0 20px rgba(255, 255, 255, 0.7); }
+        #music-toggle { position: fixed; bottom: 20px; right: 20px; padding: 10px 15px; background-color: rgba(255, 255, 255, 0.8); border: none; border-radius: 5px; cursor: pointer; font-size: 0.9em; z-index: 10; opacity: 0; transition: opacity 0.5s ease-in-out; }
+        #music-toggle.visible { opacity: 1; }
+        #score-display { position: fixed; top: 20px; left: 50%; transform: translateX(-50%) translateY(-150%); background-color: rgba(255, 255, 255, 0.9); color: black; padding: 15px 30px; border-radius: 10px; font-size: 1.8em; font-weight: bold; box-shadow: 0 0 20px rgba(255, 255, 255, 0.7); z-index: 5; opacity: 0; visibility: hidden; transition: opacity 0.5s ease-in-out, visibility 0.5s ease-in-out, transform 0.5s ease-in-out; text-align: center; }
+        #score-display.visible { opacity: 1; visibility: visible; transform: translateX(-50%) translateY(0); }
+        #score-display.fade-out { opacity: 0; transform: translateX(-50%) translateY(-150%); transition: opacity 1s ease-out, transform 1s ease-out; }
     </style>
 </head>
 <body>
     <div id="start-screen">
         <h1>Gửi Lời Chúc 2k7</h1>
         <p>Hãy nhập tên và điểm của em nhé!</p>
-        
         <div class="input-group">
-            <label for="name-input">Nhập tên ở đây nha:</label>
-            <input type="text" id="name-input" placeholder="Họ và tên...">
+            <label for="name-input">Tên của em:</label>
+            <input type="text" id="name-input" class="input-field" placeholder="Ví dụ: Minh Anh">
         </div>
-        
         <div class="input-group">
-            <label for="score-input">Điểm thi của em:</label>
-            <input type="text" id="score-input" placeholder="Ví dụ: 10 hoặc 9,5">
+            <label for="score-input">Điểm mong muốn:</label>
+            <input type="text" id="score-input" class="input-field" inputmode="decimal" placeholder="Ví dụ: 9.5 hoặc 10">
         </div>
-
-        <button id="start-button">Bấm vô đây nè!</button>
+        <p id="error-message"></p>
+        <button id="start-button">Bắt đầu!</button>
     </div>
 
-    <div id="score-display">
-        Chúc mừng em đã đạt được số điểm: <span id="chosen-score"></span>!
-    </div>
-
+    <div id="score-display">Chúc mừng em đã bắt được điểm <span id="chosen-score"></span>!</div>
     <canvas id="loveWallCanvas"></canvas>
-    <audio id="background-music" loop>
-        <source src="phepmau.mp3" type="audio/mpeg">
-        Trình duyệt của bạn không hỗ trợ phát âm thanh.
-    </audio>
-
+    <audio id="background-music" loop><source src="phepmau.mp3" type="audio/mpeg">Trình duyệt của bạn không hỗ trợ phát âm thanh.</audio>
     <button id="music-toggle" style="display: none;">Tắt nhạc</button>
 
     <script>
-        // --- Lấy các phần tử HTML ---
-        const canvas = document.getElementById('loveWallCanvas');
-        const ctx = canvas.getContext('2d');
-        const startScreen = document.getElementById('start-screen');
-        const nameInput = document.getElementById('name-input');
-        const scoreInput = document.getElementById('score-input'); 
-        const startButton = document.getElementById('start-button');
-        const music = document.getElementById('background-music');
-        const musicToggleButton = document.getElementById('music-toggle');
-        const scoreDisplay = document.getElementById('score-display'); // Lấy bảng hiển thị điểm
-        const chosenScoreSpan = document.getElementById('chosen-score'); // Lấy span để hiển thị điểm
+        const canvas = document.getElementById('loveWallCanvas'), ctx = canvas.getContext('2d');
+        const startScreen = document.getElementById('start-screen'), nameInput = document.getElementById('name-input'), scoreInput = document.getElementById('score-input'), errorMessage = document.getElementById('error-message'), startButton = document.getElementById('start-button');
+        const music = document.getElementById('background-music'), musicToggleButton = document.getElementById('music-toggle');
+        const scoreDisplay = document.getElementById('score-display'), chosenScoreSpan = document.getElementById('chosen-score');
 
-        // --- Cài đặt Canvas ---
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
+        let desiredScore = null, errorTimeout = null, lastUpdateTime = 0, timeSinceLastSpawn = 0, animationFrameId = null;
+        canvas.width = window.innerWidth; canvas.height = window.innerHeight;
 
-        // --- CÁC HẰNG SỐ CẤU HÌNH ---
-        const PARTICLE_SPAWN_INTERVAL_SECONDS = 0.08; 
-        const PARTICLE_MIN_VELOCITY_Y = 50;
-        const PARTICLE_MAX_VELOCITY_Y_OFFSET = 50;
-        const PARTICLE_MAX_VELOCITY_X_OFFSET = 50;
-        const TEXT_MIN_FONT_SIZE = 20;
-        const TEXT_MAX_FONT_SIZE_OFFSET = 10;
-        const HEART_MIN_SIZE = 25;
-        const HEART_MAX_SIZE_OFFSET = 15;
-        const SCORE_MIN_FONT_SIZE = 30; 
-        const SCORE_MAX_FONT_SIZE_OFFSET = 15;
-        const PARTICLE_MIN_LIFESPAN_SECONDS = 10.0;
-        const PARTICLE_MAX_LIFESPAN_OFFSET_SECONDS = 10.0;
-        const SCORE_DISPLAY_DURATION_SECONDS = 4; // Thời gian hiển thị bảng điểm khi click
+        const PARTICLE_SPAWN_INTERVAL_SECONDS = 0.15, HEART_SPAWN_CHANCE = 0.1, DESIRED_SCORE_SPAWN_CHANCE = 0.25;
 
-        // Tỷ lệ xuất hiện của các loại hạt (Tổng phải bằng 1 hoặc 100%)
-        const DESIRED_SCORE_SPAWN_CHANCE = 0.50; // 50% cơ hội xuất hiện ĐIỂM MONG MUỐN
-        const GENERAL_TEXT_SPAWN_CHANCE = 0.30; // 30% cơ hội xuất hiện LỜI CHÚC CHUNG
-        const HEART_SPAWN_CHANCE = 0.20; // 20% cơ hội cho TRÁI TIM
-
-        // --- TEXT GENERATOR ---
-        class TextGenerator {
-            constructor() {
-                this.baseMessages = [
-                    "Bình tĩnh, tự tin, chiến thắng!", "Chúc các em thi tốt", "Mục tiêu 10 điểm!", "Đỗ nguyện vọng 1 nhé!", 
-                    "100 trịu nhaaa", "Làm bài cẩn thận, không sai ngu", "Cố lên các sĩ tử!", 
-                    "Vượt mọi giới hạn lim", "Hàm số đồng biến, điểm số tăng đều", "Tìm max(điểm)", 
-                    "Oxyz muôn năm", "Tích phân không đổi cận", "∫f(x)dx", "x → +∞", "Δ = b² - 4ac", 
-                    "a² + b² = c²", "sin²α + cos²α = 1", "logₐb", "z = a + bi", "π", "e", "∞", "∀x ∈ R", "f'(x₀)"
-                ];
-                this.messages = [...this.baseMessages];
-                this.desiredScore = null; 
-                this.userName = ""; 
-            }
-
-            personalize(name, scoreString) { // Chú ý: score ở đây là string, cần parse bên ngoài
-                this.userName = name ? name.trim() : '';
-                
-                // Reset về tin nhắn gốc trước khi thêm các tin nhắn cá nhân hóa
-                this.messages = this.baseMessages.slice(); 
-                
-                // Chuyển đổi dấu phẩy sang dấu chấm và parse số
-                const formattedScoreString = scoreString.replace(',', '.');
-                const parsedScore = parseFloat(formattedScoreString);
-
-                // KHÔNG KIỂM TRA GIỚI HẠN ĐIỂM NỮA, CHỈ KIỂM TRA ĐÂY CÓ PHẢI LÀ SỐ KHÔNG
-                if (!isNaN(parsedScore)) {
-                    this.desiredScore = parsedScore.toFixed(1); // Làm tròn 1 chữ số thập phân
-                    this.messages.push(`Chúc ${this.desiredScore} điểm!`);
-                    this.messages.push(`Cố gắng đạt ${this.desiredScore} nhé!`);
-                } else {
-                    this.desiredScore = null; // Nếu không phải là số, không có điểm mong muốn
-                }
-
-                if (this.userName !== '') {
-                    this.messages.push(`Chúc ${this.userName} thi tốt!`);
-                    this.messages.push(`${this.userName} cố lên!`);
-                    this.messages.push(`${this.userName} đỗ NV1!`);
-                    this.messages.push(`${this.userName} lấy đc 100 trịu nhé!`);
-                    if (this.desiredScore) {
-                        this.messages.push(`${this.userName} đạt ${this.desiredScore} điểm nhé!`);
-                    }
-                }
-            }
-
-            getRandomText() { 
-                if (this.messages.length === 0) return "Chúc may mắn!";
-                return this.messages[Math.floor(Math.random() * this.messages.length)]; 
-            }
-
-            getDesiredScore() {
-                return this.desiredScore;
-            }
-        }
-
-        // --- PARTICLE (Lớp cha) ---
         class Particle {
-            constructor(x, y, velocityX, velocityY, lifeSpan) {
-                Object.assign(this, { x, y, velocityX, velocityY, lifeSpan, age: 0, opacity: 1.0, alive: true, type: 'generic' });
-            }
-            update(deltaTime) {
-                if (!this.alive) return;
-                this.x += this.velocityX * deltaTime;
-                this.y += this.velocityY * deltaTime;
-                this.age += deltaTime;
-                this.opacity = 1.0 - (this.age / this.lifeSpan);
-                if (this.age >= this.lifeSpan) this.alive = false;
-            }
+            constructor(x, y, vX, vY, life) { Object.assign(this, { x, y, velocityX: vX, velocityY: vY, lifeSpan: life, age: 0, opacity: 1, alive: true, type: 'generic' }); }
+            update(dt) { if (!this.alive) return; this.x += this.velocityX * dt; this.y += this.velocityY * dt; this.age += dt; this.opacity = 1 - (this.age / this.lifeSpan); if (this.age >= this.lifeSpan) this.alive = false; }
             render(ctx) {}
         }
-
-        // --- TEXT PARTICLE (cho cả chữ, trái tim, và điểm) ---
+        
         class TextParticle extends Particle {
-            constructor(text, x, y, velocityX, velocityY, font, color, lifeSpan, particleType = 'text') {
-                super(x, y, velocityX, velocityY, lifeSpan);
-                Object.assign(this, { text, font, color, type: particleType }); 
-            }
-            render(ctx) {
-                if (!this.alive) return;
-                ctx.font = this.font;
-                ctx.textAlign = 'center';
-                ctx.textBaseline = 'middle';
-                ctx.fillStyle = `rgba(${this.color.r}, ${this.color.g}, ${this.color.b}, ${this.opacity})`;
-                ctx.fillText(this.text, this.x, this.y);
-            }
-            isClicked(clickX, clickY) {
-                if (this.type === 'score') { 
-                    ctx.font = this.font; 
-                    const metrics = ctx.measureText(this.text);
-                    const textWidth = metrics.width;
-                    const textHeight = parseFloat(this.font); 
-                    
-                    const padding = 10;
-                    const left = this.x - (textWidth / 2) - padding;
-                    const right = this.x + (textWidth / 2) + padding;
-                    const top = this.y - (textHeight / 2) - padding;
-                    const bottom = this.y + (textHeight / 2) + padding;
-                    return clickX >= left && clickX <= right && clickY >= top && clickY <= bottom;
-                }
-                return false;
-            }
+            constructor(text, x, y, vX, vY, font, color, life) { super(x, y, vX, vY, life); Object.assign(this, { text, font, color }); }
+            render(ctx) { if (!this.alive) return; ctx.font = this.font; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillStyle = `rgba(${this.color.r},${this.color.g},${this.color.b},${this.opacity})`; ctx.fillText(this.text, this.x, this.y); }
         }
 
-        // --- PARTICLE FACTORY ---
+        class ScoreParticle extends TextParticle {
+            constructor(score, ...args) { super(score.toString(), ...args); this.type = 'score'; this.score = score; ctx.font = this.font; const metrics = ctx.measureText(this.score.toString()); this.width = metrics.width; this.height = parseFloat(this.font); }
+            isClicked(clickX, clickY) { const pad = 15; const l = this.x - this.width / 2 - pad, r = this.x + this.width / 2 + pad, t = this.y - this.height / 2 - pad, b = this.y + this.height / 2 + pad; return clickX >= l && clickX <= r && clickY >= t && clickY <= b; }
+        }
+
+        class TextGenerator {
+            constructor() { this.baseMessages = ["Bình tĩnh, tự tin, chiến thắng!", "Chúc em thi tốt nha!", "Mục tiêu 10 điểm!", "Đỗ nguyện vọng 1 nhé!", "Làm bài cẩn thận, không sai ngu", "Cố lên các sĩ tử!", "Chúc em lấy đc Vision nha!", "Chúc em lấy được 100 triệu nha!", "Vượt mọi giới hạn lim", "Hàm số đồng biến, điểm số tăng đều", "Tìm max(điểm)", "Oxyz muôn năm", "Tích phân không đổi cận", "∫f(x)dx", "x → +∞", "Δ = b²-4ac", "a²+b²=c²", "sin²α+cos²α=1", "logₐb", "z=a+bi", "π", "e", "∞", "∀x∈R", "f'(x₀)"]; this.messages = [...this.baseMessages]; }
+            personalize(name, score) { const uName = name.trim(); this.messages = [...this.baseMessages]; this.messages.push(`Chúc ${uName || 'em'} thi tốt!`, `${uName || 'Các sĩ tử'} cố lên!`); if (score !== null) { this.messages.push(`${uName || 'Em'} đạt ${score} điểm nhé!`); } }
+            getRandomText() { return this.messages[Math.floor(Math.random() * this.messages.length)]; }
+        }
+
         class ParticleFactory {
-            constructor(textGenerator) { this.textGenerator = textGenerator; }
-
-            createScoreParticle(canvasWidth, scoreValue, isDesired) {
-                const score = scoreValue;
-                const x = Math.random() * canvasWidth;
-                const y = -40;
-                const velocityX = (Math.random() - 0.5) * PARTICLE_MAX_VELOCITY_X_OFFSET * 0.8;
-                const velocityY = (PARTICLE_MIN_VELOCITY_Y * 0.8) + Math.random() * (PARTICLE_MAX_VELOCITY_Y_OFFSET * 0.8);
-                
-                const fontSize = isDesired ? (SCORE_MIN_FONT_SIZE + SCORE_MAX_FONT_SIZE_OFFSET + Math.random() * 10) : (SCORE_MIN_FONT_SIZE + Math.random() * SCORE_MAX_FONT_SIZE_OFFSET);
-                const font = `bold ${fontSize}px 'Segoe UI'`;
-                const color = isDesired ? { r: 255, g: 230, b: 0 } : { r: 255, g: 165, b: 0 };
-                
-                const lifeSpan = PARTICLE_MIN_LIFESPAN_SECONDS * 0.8 + Math.random() * PARTICLE_MAX_LIFESPAN_OFFSET_SECONDS * 0.8;
-                return new TextParticle(score.toString(), x, y, velocityX, velocityY, font, color, lifeSpan, 'score');
-            }
-            
-            createRandomTextParticle(canvasWidth) {
-                const x = Math.random() * canvasWidth;
-                const y = -30;
-                const velocityX = (Math.random() - 0.5) * PARTICLE_MAX_VELOCITY_X_OFFSET;
-                const velocityY = PARTICLE_MIN_VELOCITY_Y + Math.random() * PARTICLE_MAX_VELOCITY_Y_OFFSET;
-                const fontSize = TEXT_MIN_FONT_SIZE + Math.random() * TEXT_MAX_FONT_SIZE_OFFSET;
-                const font = `bold ${fontSize}px 'Segoe UI'`;
+            constructor(textGen) { this.textGenerator = textGen; }
+            create(type, score = null) {
+                const x = Math.random() * canvas.width, y = -30, life = 10 + Math.random() * 8;
+                const vX = (Math.random() - 0.5) * 50, vY = 50 + Math.random() * 50;
+                if (type === 'heart') {
+                    const size = 25 + Math.random() * 15, font = `bold ${size}px 'Segoe UI'`;
+                    const color = { r: 255, g: Math.floor(Math.random() * 100), b: Math.floor(Math.random() * 100) };
+                    return new TextParticle("❤", x, y, vX * 0.6, vY * 0.7, font, color, life);
+                }
+                if (type === 'score') {
+                    const isDesired = (score === desiredScore);
+                    const size = isDesired ? (50 + Math.random() * 20) : (40 + Math.random() * 15);
+                    const font = `bold ${size}px 'Segoe UI'`, color = isDesired ? {r:255, g:230, b:0} : {r:255, g:165, b:0};
+                    return new ScoreParticle(score, x, y, vX * 0.8, vY * 0.8, font, color, life);
+                }
+                const size = 20 + Math.random() * 10, font = `bold ${size}px 'Segoe UI'`;
                 const color = { r: Math.floor(Math.random() * 256), g: Math.floor(Math.random() * 256), b: Math.floor(Math.random() * 256) };
-                const lifeSpan = PARTICLE_MIN_LIFESPAN_SECONDS + Math.random() * PARTICLE_MAX_LIFESPAN_OFFSET_SECONDS;
-                return new TextParticle(this.textGenerator.getRandomText(), x, y, velocityX, velocityY, font, color, lifeSpan, 'text');
-            }
-
-            createRandomHeartParticle(canvasWidth) {
-                const x = Math.random() * canvasWidth;
-                const y = -30;
-                const velocityX = (Math.random() - 0.5) * PARTICLE_MAX_VELOCITY_X_OFFSET * 0.6;
-                const velocityY = (PARTICLE_MIN_VELOCITY_Y * 0.6) + Math.random() * (PARTICLE_MAX_VELOCITY_Y_OFFSET * 0.6);
-                const fontSize = HEART_MIN_SIZE + Math.random() * HEART_MAX_SIZE_OFFSET;
-                const font = `bold ${fontSize}px 'Segoe UI'`;
-                const color = { r: 255, g: Math.floor(Math.random() * 100), b: Math.floor(Math.random() * 100) };
-                const lifeSpan = PARTICLE_MIN_LIFESPAN_SECONDS + Math.random() * PARTICLE_MAX_LIFESPAN_OFFSET_SECONDS;
-                return new TextParticle("❤", x, y, velocityX, velocityY, font, color, lifeSpan, 'heart');
+                return new TextParticle(this.textGenerator.getRandomText(), x, y, vX, vY, font, color, life);
             }
         }
 
-        // --- PARTICLE SYSTEM ---
         class ParticleSystem {
             constructor() { this.particles = []; }
-            addParticle(p) { this.particles.push(p); }
-            update(deltaTime) {
-                this.particles = this.particles.filter(p => {
-                    p.update(deltaTime);
-                    // Giữ hạt sống nếu nó chưa rơi quá xa khỏi màn hình
-                    return p.alive && p.y < canvas.height + 100 && p.y > -100;
-                });
-            }
+            add(p) { this.particles.push(p); }
+            update(dt) { this.particles = this.particles.filter(p => { p.update(dt); return p.alive && p.y < canvas.height + 100; }); }
             render(ctx) { for (const p of this.particles) p.render(ctx); }
-
-            // Xử lý click vào các hạt
             handleClick(clickX, clickY) {
                 for (let i = this.particles.length - 1; i >= 0; i--) {
                     const p = this.particles[i];
                     if (p.type === 'score' && p.alive && p.isClicked(clickX, clickY)) {
-                        chosenScoreSpan.textContent = p.text; // Hiển thị nội dung của hạt (là điểm số)
-                        scoreDisplay.classList.remove('fade-out');
-                        scoreDisplay.classList.add('visible');
-                        
-                        // Đảm bảo chỉ có một timeout đang chạy
-                        if (scoreDisplay.timeoutId) {
-                            clearTimeout(scoreDisplay.timeoutId);
-                        }
-                        scoreDisplay.timeoutId = setTimeout(() => {
-                            scoreDisplay.classList.remove('visible');
-                            scoreDisplay.classList.add('fade-out');
-                        }, SCORE_DISPLAY_DURATION_SECONDS * 1000);
-                        
-                        p.alive = false; // Hạt biến mất sau khi được click
-                        break; 
+                        chosenScoreSpan.textContent = p.score;
+                        scoreDisplay.classList.remove('fade-out'); scoreDisplay.classList.add('visible');
+                        clearTimeout(scoreDisplay.timeoutId);
+                        scoreDisplay.timeoutId = setTimeout(() => { scoreDisplay.classList.remove('visible'); scoreDisplay.classList.add('fade-out'); }, 4000);
+                        p.lifeSpan = p.age + 0.5;
+                        break;
                     }
                 }
             }
         }
 
-        // --- KHỞI TẠO CÁC HỆ THỐNG VÀ BIẾN GLOBAL ---
-        const textGenerator = new TextGenerator();
-        const particleFactory = new ParticleFactory(textGenerator);
-        const particleSystem = new ParticleSystem();
-        let lastUpdateTime = 0, timeSinceLastSpawn = 0, animationFrameId = null;
+        const textGenerator = new TextGenerator(), particleFactory = new ParticleFactory(textGenerator), particleSystem = new ParticleSystem();
         
-        // --- VÒNG LẶP ANIMATION CHÍNH ---
-        function animationLoop(currentTime) {
-            if (!lastUpdateTime) {
-                lastUpdateTime = currentTime;
-            }
-            const deltaTime = (currentTime - lastUpdateTime) / 1000;
-            lastUpdateTime = currentTime;
-
-            timeSinceLastSpawn += deltaTime;
+        function animationLoop(time) {
+            if (!lastUpdateTime) lastUpdateTime = time;
+            const dt = (time - lastUpdateTime) / 1000;
+            lastUpdateTime = time;
+            timeSinceLastSpawn += dt;
             if (timeSinceLastSpawn >= PARTICLE_SPAWN_INTERVAL_SECONDS) {
-                const randomChance = Math.random();
-                const currentDesiredScore = textGenerator.getDesiredScore(); 
-
-                // Logic sinh hạt đã được điều chỉnh tỷ lệ
-                if (currentDesiredScore !== null && randomChance < DESIRED_SCORE_SPAWN_CHANCE) {
-                    particleSystem.addParticle(particleFactory.createScoreParticle(canvas.width, currentDesiredScore, true));
-                } else if (randomChance < (DESIRED_SCORE_SPAWN_CHANCE + GENERAL_TEXT_SPAWN_CHANCE)) {
-                    particleSystem.addParticle(particleFactory.createRandomTextParticle(canvas.width));
-                } else { // if (randomChance < (DESIRED_SCORE_SPAWN_CHANCE + GENERAL_TEXT_SPAWN_CHANCE + HEART_SPAWN_CHANCE))
-                    particleSystem.addParticle(particleFactory.createRandomHeartParticle(canvas.width));
-                } 
-                
+                const r = Math.random();
+                if (desiredScore !== null && r < DESIRED_SCORE_SPAWN_CHANCE) {
+                    particleSystem.add(particleFactory.create('score', desiredScore));
+                } else if (r < DESIRED_SCORE_SPAWN_CHANCE + HEART_SPAWN_CHANCE) {
+                    particleSystem.add(particleFactory.create('heart'));
+                } else {
+                    particleSystem.add(particleFactory.create('text'));
+                }
                 timeSinceLastSpawn = 0;
             }
-
-            particleSystem.update(deltaTime);
+            particleSystem.update(dt);
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             particleSystem.render(ctx);
-
             animationFrameId = requestAnimationFrame(animationLoop);
         }
 
-        // --- HÀM XỬ LÝ NHẠC ---
-        function toggleMusic() {
-            if (music.paused) {
-                music.play().then(() => {
-                    musicToggleButton.textContent = 'Tắt nhạc';
-                }).catch(e => {
-                    console.error("Không thể phát nhạc:", e);
-                    alert("Trình duyệt chặn tự động phát nhạc. Vui lòng bấm để bật nhạc thủ công.");
-                    musicToggleButton.textContent = 'Bật nhạc'; 
-                });
-            } else {
-                music.pause();
-                musicToggleButton.textContent = 'Bật nhạc';
-            }
-        }
-
-        // --- XỬ LÝ SỰ KIỆN KHI NHẤN NÚT BẮT ĐẦU ---
         startButton.addEventListener('click', () => {
-            const userName = nameInput.value;
-            const scoreValueString = scoreInput.value; // Lấy giá trị chuỗi từ input
-
-            // CHỈ GỌI personalize() VỚI CHUỖI ĐIỂM SỐ, ĐỂ NÓ TỰ XỬ LÝ VIỆC CHUYỂN ĐỔI
-            textGenerator.personalize(userName, scoreValueString); 
-
-            // Ẩn màn hình bắt đầu
-            startScreen.classList.add('hidden');
+            const scoreStr = scoreInput.value.replace(',', '.');
+            const scoreVal = parseFloat(scoreStr);
+            if (scoreInput.value.trim() === '' || isNaN(scoreVal)) {
+                errorMessage.textContent = "Vui lòng nhập một số điểm hợp lệ!";
+                errorMessage.classList.add('visible');
+                clearTimeout(errorTimeout);
+                errorTimeout = setTimeout(() => { errorMessage.classList.remove('visible'); }, 3000);
+                return;
+            }
+            errorMessage.classList.remove('visible');
+            desiredScore = scoreVal;
+            textGenerator.personalize(nameInput.value, desiredScore);
             
-            // Hiển thị và bật/tắt nhạc
+            startScreen.classList.add('hidden');
             musicToggleButton.style.display = 'block';
             setTimeout(() => musicToggleButton.classList.add('visible'), 50);
-            toggleMusic(); 
-
-            // Bắt đầu vòng lặp animation nếu chưa chạy
-            if (!animationFrameId) {
-                animationFrameId = requestAnimationFrame(animationLoop);
-            }
+            toggleMusic();
+            if (!animationFrameId) animationFrameId = requestAnimationFrame(animationLoop);
         });
-
-        // --- XỬ LÝ KHI THAY ĐỔI KÍCH THƯỚC CỬA SỔ ---
-        window.addEventListener('resize', () => {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-        });
-
-        // --- XỬ LÝ SỰ KIỆN NÚT ĐIỀU KHIỂN NHẠC ---
+        
+        function toggleMusic() { if (music.paused) { music.play().then(() => musicToggleButton.textContent = 'Tắt nhạc').catch(e => musicToggleButton.textContent = 'Bật nhạc'); } else { music.pause(); musicToggleButton.textContent = 'Bật nhạc'; } }
+        window.addEventListener('resize', () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight; });
         musicToggleButton.addEventListener('click', toggleMusic);
-
-        // --- Xử lý sự kiện click trên canvas để tương tác với hạt điểm ---
-        canvas.addEventListener('click', (event) => {
-            const rect = canvas.getBoundingClientRect();
-            // Lấy tọa độ click tương đối so với canvas
-            const clickX = event.clientX - rect.left;
-            const clickY = event.clientY - rect.top;
-            particleSystem.handleClick(clickX, clickY);
-        });
-
-        // Đảm bảo nhạc bắt đầu ở trạng thái tạm dừng
-        music.pause();
-        music.currentTime = 0;
+        canvas.addEventListener('click', (e) => { const rect = canvas.getBoundingClientRect(); particleSystem.handleClick(e.clientX - rect.left, e.clientY - rect.top); });
+        music.pause(); music.currentTime = 0;
     </script>
 </body>
 </html>
